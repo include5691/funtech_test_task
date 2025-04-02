@@ -1,5 +1,4 @@
 import json
-import atexit
 import logging
 from confluent_kafka import Producer
 from src.core.config import settings
@@ -24,15 +23,14 @@ def shutdown_kafka():
     logging.info("Kafka producer shut down successfully.")
 
 producer = Producer(config)
-atexit.register(shutdown_kafka)
 
-def send_new_order_message(order: OrderRead):
+async def send_new_order_message(order: OrderRead):
     "Produce a new order message to Kafka to the new_orders topic"
     try:
         producer.produce(
             topic=settings.KAFKA_NEW_ORDERS_TOPIC,
             key=str(order.id),
-            value=json.dumps(order.model_dump()),
+            value=json.dumps(order.dump_for_kafka()),
             callback=delivery_report
         )
         producer.poll(0)

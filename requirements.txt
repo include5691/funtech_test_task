@@ -11,3 +11,5 @@ passlib
 alembic
 confluent_kafka
 celery[redis]
+fastapi-cache2[redis]
+redis[hiredis]

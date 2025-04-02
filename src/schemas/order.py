@@ -28,8 +28,7 @@ class OrderRead(OrderBase):
     class Config:
         from_attributes = True
     
-    @model_serializer
-    def serialize_for_kafka(self) -> dict:
+    def dump_for_kafka(self) -> dict:
         "Used for transferrint to Kafka"
         return {
             "items": self.items,
