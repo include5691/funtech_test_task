@@ -15,4 +15,6 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
 
+    SLOWAPI_REDIS_URL: str = "redis://localhost:6379/2"
+
 settings = Settings()
