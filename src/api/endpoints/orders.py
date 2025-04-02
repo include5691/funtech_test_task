@@ -5,6 +5,7 @@ from src.db.models.order import Order
 from src.schemas.order import OrderBase, OrderRead, OrderUpdate
 from src.schemas.user import UserRead
 from src.api.deps import get_session, get_current_user
+from src.kafka.producer import send_new_order_message
 
 order_router = APIRouter()
 
@@ -19,6 +20,7 @@ def create_order(
     session.add(order)
     session.commit()
     session.refresh(order)
+    send_new_order_message(OrderRead.from_orm(order))
     return order
 
 @order_router.get("/{order_id}/", response_model=OrderRead)

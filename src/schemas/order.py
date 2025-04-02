@@ -1,7 +1,7 @@
 import uuid
 import enum
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, model_serializer
 
 class OrderStatus(enum.StrEnum):
     PENDING = "PENDING"
@@ -27,3 +27,14 @@ class OrderRead(OrderBase):
 
     class Config:
         from_attributes = True
+    
+    @model_serializer
+    def serialize_for_kafka(self) -> dict:
+        "Used for transferrint to Kafka"
+        return {
+            "items": self.items,
+            "total_price": self.total_price,
+            "user_id": self.user_id,
+            "status": self.status,
+            "created_at": str(self.created_at)
+        }

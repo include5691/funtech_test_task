@@ -9,7 +9,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
 
-    class Config:
-        env_file = ".env"
+    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
+    KAFKA_NEW_ORDERS_TOPIC: str = "new-orders"
+
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
 
 settings = Settings()

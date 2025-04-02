@@ -9,3 +9,5 @@ pydantic[email]
 python-jose
 passlib
 alembic
+confluent_kafka
+celery[redis]
