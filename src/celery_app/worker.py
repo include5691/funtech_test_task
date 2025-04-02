@@ -29,7 +29,7 @@ def process_order_task(order_id: str, **kwargs):
     try:
         logging.info(f"Processing order {order_id}")
         time.sleep(2)
-        logging.info(f"Order {order_id} processed")
+        print(f"Order {order_id} processed")
         return f"Order {order_id} processed successfully"
     except Exception as e:
         logging.error(f"Error during processing order {order_id}: {e}", exc_info=True)
