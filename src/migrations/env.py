@@ -13,7 +13,7 @@ from sqlalchemy import pool
 
 from alembic import context
 from src.db.session import Base
-from src.db.models import user
+from src.db.models import user, order
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

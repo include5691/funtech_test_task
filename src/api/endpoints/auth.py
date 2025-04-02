@@ -9,7 +9,7 @@ from src.schemas.token import Token
 
 auth_router = APIRouter()
 
-@auth_router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserRead)
+@auth_router.post("/register/", status_code=status.HTTP_201_CREATED, response_model=UserRead)
 def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     "Register a new user"
     if session.query(User).filter_by(email=user_in.email).first():
@@ -20,7 +20,7 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     session.refresh(user)
     return user
 
-@auth_router.post("/token", response_model=Token)
+@auth_router.post("/token/", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
     "Login and get access token"
     user = authenticate_user(
