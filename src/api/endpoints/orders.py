@@ -14,18 +14,28 @@ order_router = APIRouter()
 
 CACHE_EXPIRING_TIME = 300
 
+
 def key_builder(
-    *args,
-    namespace="",
-    request: Request = None,
-    order_id: str | None = None,
-    **kwargs
+    *args, namespace="", request: Request = None, order_id: str | None = None, **kwargs
 ):
     "Build cache key for order-related functions in namespase:id_order format"
     order_id = order_id or request.url.path.split("/")[-2]
     return f"{namespace}:{order_id}"
 
-@order_router.post("/", response_model=OrderRead, status_code=status.HTTP_201_CREATED)
+
+@order_router.post(
+    "/",
+    response_model=OrderRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a New Order",
+    description="Creates a new order for the currently authenticated user and publishes a 'new_order' event to Kafka.",
+    responses={
+        status.HTTP_201_CREATED: {"description": "Order created successfully"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Invalid order data provided"
+        },
+    },
+)
 async def create_order(
     order_in: OrderBase,
     session: Session = Depends(get_session),
@@ -39,7 +49,18 @@ async def create_order(
     await send_new_order_message(OrderRead.model_validate(order))
     return order
 
-@order_router.get("/{order_id}/", response_model=OrderRead)
+
+@order_router.get(
+    "/{order_id}/",
+    response_model=OrderRead,
+    summary="Get Order by ID",
+    description=f"""Retrieves details for a specific order by its UUID.
+    Checks Redis cache first (TTL: {CACHE_EXPIRING_TIME} seconds).
+    Only the order owner can access it.""",
+    responses={
+        status.HTTP_200_OK: {"description": "Order details retrieved successfully"},
+    },
+)
 @cache(expire=CACHE_EXPIRING_TIME, key_builder=key_builder)
 async def get_order(
     order_id: uuid.UUID,
@@ -61,7 +82,20 @@ async def get_order(
     return order
 
 
-@order_router.patch("/{order_id}/", response_model=OrderRead)
+@order_router.patch(
+    "/{order_id}/",
+    response_model=OrderRead,
+    summary="Update Order Status",
+    description="""Updates the status of an existing order.
+    Only the order owner can perform this action.
+    Invalidates/updates the Redis cache for this order.""",
+    responses={
+        status.HTTP_200_OK: {"description": "Order status updated successfully"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Invalid status value provided"
+        },
+    },
+)
 async def update_order_status(
     order_id: uuid.UUID,
     order_update: OrderUpdate,
@@ -91,7 +125,17 @@ async def update_order_status(
     return order
 
 
-@order_router.get("/user/{user_id}", response_model=list[OrderRead])
+@order_router.get(
+    "/user/{user_id}",
+    response_model=list[OrderRead],
+    summary="Get All Orders for a User",
+    description="Retrieves a list of all orders belonging to the specified user ID. Only the user themselves can access their orders.",
+    responses={
+        status.HTTP_200_OK: {
+            "description": "List of user orders retrieved successfully"
+        },
+    },
+)
 async def get_user_orders(
     user_id: int,
     session: Session = Depends(get_session),

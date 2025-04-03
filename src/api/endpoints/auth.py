@@ -9,7 +9,18 @@ from src.schemas.token import Token
 
 auth_router = APIRouter()
 
-@auth_router.post("/register/", status_code=status.HTTP_201_CREATED, response_model=UserRead)
+
+@auth_router.post(
+    "/register/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserRead,
+    summary="Register New User",
+    description="Create a new user account with email and password.",
+    responses={
+        status.HTTP_201_CREATED: {"description": "User successfully created"},
+        status.HTTP_400_BAD_REQUEST: {"description": "Email already registered"},
+    },
+)
 async def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     "Register a new user"
     if session.query(User).filter_by(email=user_in.email).first():
@@ -20,13 +31,24 @@ async def register_user(user_in: UserCreate, session: Session = Depends(get_sess
     session.refresh(user)
     return user
 
-@auth_router.post("/token/", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+
+@auth_router.post(
+    "/token/",
+    response_model=Token,
+    summary="Login and Obtain Access Token",
+    description="Authenticate using email (as username) and password via OAuth2 Password Flow to get a JWT access token.",
+    responses={
+    status.HTTP_200_OK: {"description": "Authentication successful, token returned"},
+    status.HTTP_401_UNAUTHORIZED: {"description": "Incorrect email or password"},
+}
+)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
     "Login and get access token"
     user = authenticate_user(
-        session=session,
-        email=form_data.username,
-        password=form_data.password
+        session=session, email=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(

@@ -21,6 +21,7 @@ openssl rand -base64 15
 - `CELERY_BROKER_URL`: celery broker url, in this exmaple we use redis: `redis://redis:6379/0`
 - `CELERY_RESULT_BACKEND`: celery result storage. In this example: `redis://redis:6379/1`
 - `SLOWAPI_REDIS_URL`: requests limiter redis url. In this example: `redis://redis:6379/2`
+- `FASTAPI_CACHE_REDIS_URL`: responses caching redis url. In this example: `redis://redis:6379/3`
 
 **Copy me**:
 ```
@@ -64,3 +65,7 @@ sudo apt install docker-compose-plugin
 ```shell
 docker compose up --build
 ```
+
+## Swagger UI
+Swagger UI available after launch via url:  
+http://127.0.0.1:8000/docs  
