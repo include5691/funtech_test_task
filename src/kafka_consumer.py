@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import time
 import logging
 from confluent_kafka import Consumer
 from src.core.config import settings

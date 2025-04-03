@@ -6,25 +6,26 @@ logging.basicConfig(level=logging.INFO)
 
 import contextlib
 from fastapi import FastAPI
-from fastapi_cache import FastAPICache
+from fastapi_cache import FastAPICache, JsonCoder
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from redis.asyncio import Redis
+from redis.asyncio import from_url
 from src.api.endpoints.auth import auth_router
 from src.api.endpoints.orders import order_router
 from src.kafka.producer import shutdown_kafka
 from src.core.limiter import limiter
+from src.core.config import settings
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Lifespan context manager for FastAPI app.
     """
-    redis = Redis()
-    FastAPICache.init(RedisBackend(redis))
+    redis = from_url(settings.FASTAPI_CACHE_REDIS_URL)
+    FastAPICache.init(RedisBackend(redis), coder=JsonCoder)
     yield
     await redis.close()
     shutdown_kafka()
@@ -47,7 +48,3 @@ app.add_middleware(CORSMiddleware,
                    allow_headers=["*"])
 
 app.add_middleware(SlowAPIMiddleware)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, port=8000)

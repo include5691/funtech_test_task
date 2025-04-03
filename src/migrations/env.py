@@ -4,8 +4,10 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
-import os
 from dotenv import load_dotenv
+load_dotenv()
+
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -30,7 +32,6 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
-load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 

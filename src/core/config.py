@@ -1,20 +1,28 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    API_V1_STR: str = "/api/v1"
-    DATABASE_URL: str = os.getenv("DATABASE_URL")
 
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your_super_secret_key_change_me")
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        extra='ignore'
+    )
+
+    SECRET_KEY: str
+
+    DATABASE_URL: str
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
 
-    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
+    KAFKA_BOOTSTRAP_SERVERS: str
     KAFKA_NEW_ORDERS_TOPIC: str = "new-orders"
 
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
 
-    SLOWAPI_REDIS_URL: str = "redis://localhost:6379/2"
+    SLOWAPI_REDIS_URL: str
+
+    FASTAPI_CACHE_REDIS_URL: str
 
 settings = Settings()
