@@ -1,5 +1,5 @@
 # funtech_test_task
-Funtech test task
+A service for registration, authentication using JWT, and order management.
 
 ## Setup
 
